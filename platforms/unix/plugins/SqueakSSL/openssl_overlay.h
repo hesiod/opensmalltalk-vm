@@ -68,6 +68,7 @@
 #define sqo_ERR_print_errors_fp ERR_print_errors_fp
 #define sqo_SSL_CTX_new SSL_CTX_new
 #define sqo_SSL_CTX_free SSL_CTX_free
+#define sqo_SSL_CTX_set_alpn_select_cb SSL_CTX_set_alpn_select_cb
 #define sqo_SSL_CTX_set_cipher_list SSL_CTX_set_cipher_list
 #define sqo_SSL_CTX_set_default_verify_paths SSL_CTX_set_default_verify_paths
 #define sqo_SSL_CTX_ctrl SSL_CTX_ctrl
@@ -82,7 +83,9 @@
 #define sqo_SSL_get_verify_result SSL_get_verify_result
 #define sqo_SSL_new SSL_new
 #define sqo_SSL_read SSL_read
+#define sqo_SSL_select_next_proto SSL_select_next_proto
 #define sqo_SSL_set_accept_state SSL_set_accept_state
+#define sqo_SSL_set_alpn_protos SSL_set_alpn_protos
 #define sqo_SSL_set_bio SSL_set_bio
 #define sqo_SSL_set_connect_state SSL_set_connect_state
 #define sqo_SSL_set_tlsext_host_name SSL_set_tlsext_host_name
@@ -265,6 +268,9 @@ OPENSSL_INIT_SETTINGS;
   SQO_DECL___(int, BIO_read, BIO *b, void *data, int len)               \
   SQO_DECL___(void, ERR_print_errors_fp, FILE *fp)                      \
   SQO_DECL___(void, SSL_CTX_free, SSL_CTX *)                            \
+  SQO_DECL___(void, SSL_CTX_set_alpn_select_cb, SSL_CTX *ctx, \
+    int (*cb) (SSL *ssl, const unsigned char **out, unsigned char *outlen, \
+    const unsigned char *in, unsigned int inlen), void *arg) \
   SQO_DECL___(int, SSL_CTX_set_cipher_list, SSL_CTX *, const char *str) \
   SQO_DECL___(int, SSL_CTX_set_default_verify_paths, SSL_CTX *ctx)      \
   SQO_DECL___(long, SSL_CTX_ctrl, SSL_CTX *ctx, int cmd, long larg, void *parg) \
@@ -279,7 +285,13 @@ OPENSSL_INIT_SETTINGS;
   SQO_DECL___(long, SSL_get_verify_result, const SSL *ssl)              \
   SQO_DECL___(SSL *, SSL_new, SSL_CTX *ctx)                             \
   SQO_DECL___(int, SSL_read, SSL *ssl, void *buf, int num)              \
+  SQO_DECL___(int, SSL_select_next_proto, \
+    unsigned char **out, unsigned char *outlen, \
+    const unsigned char *server, unsigned int server_len, \
+    const unsigned char *client, unsigned int client_len) \
   SQO_DECL___(void, SSL_set_accept_state, SSL *s)                       \
+  SQO_DECL___(int, SSL_set_alpn_protos, SSL *ssl, const unsigned char* protos, \
+    unsigned int protos_len) \
   SQO_DECL___(void, SSL_set_bio, SSL *s, BIO *rbio, BIO *wbio)          \
   SQO_DECL___(void, SSL_set_connect_state, SSL *s)                      \
   SQO_DECL___(int, SSL_write, SSL *ssl, const void *buf, int num)       \

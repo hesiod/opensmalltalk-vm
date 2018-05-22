@@ -19,6 +19,7 @@ typedef struct sqSSL {
 	char *certName;
 	char *peerName;
 	char *serverName;
+	char *alpnProtos;
 
 	SSL_METHOD *method;
 	SSL_CTX *ctx;
@@ -266,6 +267,15 @@ sqInt sqSetupSSL(sqSSL *ssl, int server) {
 	ssl->ssl = sqo_SSL_new(ssl->ctx);
 	if(ssl->loglevel) printf("sqSetupSSL: setting bios\n");
 	sqo_SSL_set_bio(ssl->ssl, ssl->bioRead, ssl->bioWrite);
+
+	if(ssl->alpnProtos) {
+		if(ssl->loglevel) printf("sqSetupSSL: setting ALPN protocols\n");
+		if (sqo_SSL_set_alpn_protos(ssl->ssl, ssl->alpnProtos, strlen(ssl->alpnProtos)) != 0) {
+			sqo_ERR_print_errors_fp(stderr);
+		}
+		sqo_SSL_CTX_set_alpn_select_cb(ssl->ctx, sqo_SSL_select_next_proto, NULL);
+	}
+
 	return 1;
 }
 /********************************************************************/
@@ -641,9 +651,10 @@ char* sqGetStringPropertySSL(sqInt handle, int propID) {
 
 	if(ssl == NULL) return NULL;
 	switch(propID) {
-		case SQSSL_PROP_PEERNAME:	return ssl->peerName ? ssl->peerName : emptyString;
-		case SQSSL_PROP_CERTNAME:	return ssl->certName;
-		case SQSSL_PROP_SERVERNAME:	return ssl->serverName;
+		case SQSSL_PROP_PEERNAME:       return ssl->peerName ? ssl->peerName : emptyString;
+		case SQSSL_PROP_CERTNAME:       return ssl->certName;
+		case SQSSL_PROP_SERVERNAME:     return ssl->serverName;
+		case SQSSL_PROP_ALPN_PROTOS:    return ssl->alpnProtos;
 		default:
 			if(ssl->loglevel) printf("sqGetStringPropertySSL: Unknown property ID %d\n", propID);
 			return NULL;
@@ -679,6 +690,10 @@ sqInt sqSetStringPropertySSL(sqInt handle, int propID, char *propName, sqInt pro
 		case SQSSL_PROP_SERVERNAME:
 			if (ssl->serverName) free(ssl->serverName);
 			ssl->serverName = property;
+			break;
+		case SQSSL_PROP_ALPN_PROTOS:
+			if (ssl->alpnProtos) free(ssl->alpnProtos);
+			ssl->alpnProtos = property;
 			break;
 		default:
 			if(property) free(property);

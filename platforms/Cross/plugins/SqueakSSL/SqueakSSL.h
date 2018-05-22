@@ -10,7 +10,7 @@
 /**********************************************************/
 
 
-#define SQSSL_VERSION 3
+#define SQSSL_VERSION 4
 
 /*************************/
 /* SSL connection states */
@@ -60,6 +60,7 @@
 #define SQSSL_PROP_PEERNAME 0
 #define SQSSL_PROP_CERTNAME 1
 #define SQSSL_PROP_SERVERNAME 2
+#define SQSSL_PROP_ALPN_PROTOS 3
 
 /* sqCreateSSL: Creates a new SSL instance.
 	Arguments: None.
