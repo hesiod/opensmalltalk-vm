@@ -81,6 +81,7 @@
 #define sqo_SSL_get_error SSL_get_error
 #define sqo_SSL_get_peer_certificate SSL_get_peer_certificate
 #define sqo_SSL_get_verify_result SSL_get_verify_result
+#define sqo_SSL_get0_alpn_selected SSL_get0_alpn_selected
 #define sqo_SSL_new SSL_new
 #define sqo_SSL_read SSL_read
 #define sqo_SSL_select_next_proto SSL_select_next_proto
@@ -283,6 +284,8 @@ OPENSSL_INIT_SETTINGS;
   SQO_DECL___(int, SSL_get_error, const SSL *s, int ret_code)           \
   SQO_DECL___(X509 *, SSL_get_peer_certificate, const SSL *s)           \
   SQO_DECL___(long, SSL_get_verify_result, const SSL *ssl)              \
+  SQO_DECL___(void, SSL_get0_alpn_selected, const SSL *ssl, \
+	const unsigned char **data, unsigned int *len) \
   SQO_DECL___(SSL *, SSL_new, SSL_CTX *ctx)                             \
   SQO_DECL___(int, SSL_read, SSL *ssl, void *buf, int num)              \
   SQO_DECL___(int, SSL_select_next_proto, \

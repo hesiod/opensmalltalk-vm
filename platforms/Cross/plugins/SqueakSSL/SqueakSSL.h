@@ -61,6 +61,7 @@
 #define SQSSL_PROP_CERTNAME 1
 #define SQSSL_PROP_SERVERNAME 2
 #define SQSSL_PROP_ALPN_PROTOS 3
+#define SQSSL_PROP_ALPN_SELECTED 4
 
 /* sqCreateSSL: Creates a new SSL instance.
 	Arguments: None.

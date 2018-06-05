@@ -20,6 +20,7 @@ typedef struct sqSSL {
 	char *peerName;
 	char *serverName;
 	char *alpnProtos;
+	char *alpnSelected;
 
 	SSL_METHOD *method;
 	SSL_CTX *ctx;
@@ -341,6 +342,8 @@ sqInt sqDestroySSL(sqInt handle) {
 	if(ssl->certName) free(ssl->certName);
 	if(ssl->peerName) free(ssl->peerName);
 	if(ssl->serverName) free(ssl->serverName);
+	if(ssl->alpnProtos) free(ssl->alpnProtos);
+	if(ssl->alpnSelected) free(ssl->alpnSelected);
 
 	free(ssl);
 	handleBuf[handle] = NULL;
@@ -486,9 +489,15 @@ sqInt sqConnectSSL(sqInt handle, char* srcBuf, sqInt srcLen, char *dstBuf, sqInt
 		if(ssl->loglevel) printf("sqConnectSSL: SSL_get_verify_result = %d\n", result);
 		/* FIXME: Figure out the actual failure reason */
 		ssl->certFlags = result ? SQSSL_OTHER_ISSUE : SQSSL_OK;
+
+		const unsigned char* data;
+		unsigned int len;
+		sqo_SSL_get0_alpn_selected(ssl->ssl, &data, &len);
+		ssl->alpnSelected = strndup(data, len);
 	} else {
 		ssl->certFlags = SQSSL_NO_CERTIFICATE;
 	}
+
 	return 0;
 }
 
@@ -655,6 +664,7 @@ char* sqGetStringPropertySSL(sqInt handle, int propID) {
 		case SQSSL_PROP_CERTNAME:       return ssl->certName;
 		case SQSSL_PROP_SERVERNAME:     return ssl->serverName;
 		case SQSSL_PROP_ALPN_PROTOS:    return ssl->alpnProtos;
+		case SQSSL_PROP_ALPN_SELECTED:	return ssl->alpnSelected;
 		default:
 			if(ssl->loglevel) printf("sqGetStringPropertySSL: Unknown property ID %d\n", propID);
 			return NULL;
@@ -695,6 +705,8 @@ sqInt sqSetStringPropertySSL(sqInt handle, int propID, char *propName, sqInt pro
 			if (ssl->alpnProtos) free(ssl->alpnProtos);
 			ssl->alpnProtos = property;
 			break;
+		case SQSSL_PROP_ALPN_SELECTED:
+			return 0;
 		default:
 			if(property) free(property);
 			if(ssl->loglevel) printf("sqSetStringPropertySSL: Unknown property ID %d\n", propID);
